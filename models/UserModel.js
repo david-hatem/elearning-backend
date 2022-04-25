@@ -1,0 +1,32 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const valid = require("validator");
+const jwt = require("jsonwebtoken");
+const config = require("config");
+// User Schema
+const userSchema = new Schema(
+  {
+    name: { type: String, required: true, minlength: 5, maxlength: 50 },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      validate: {
+        validator: (val) => {
+          return valid.isEmail(val);
+        },
+        message: "{VALUE} not valid",
+      },
+    },
+    password: { type: String, required: true, minlength: 5 },
+    role: { type: String, default: "instructor" },
+  },
+  { timestamps: true }
+);
+
+userSchema.method("genAuthToken", function () {
+  const token = jwt.sign({ usrid: this._id }, config.get("jwtsec"));
+  return token;
+});
+
+module.exports = mongoose.model("User", userSchema);
