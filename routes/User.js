@@ -11,6 +11,7 @@ const FeedbackModel = require("../models/FeedbackModel");
 const AlgorithmModel = require("../models/AlgorithmModel");
 const MainNotesModel = require("../models/MainNotesModel");
 const TopicsModel = require("../models/TopicsModel");
+const QuizModel = require("../models/QuizModel");
 
 router.post("/register", validator, async (req, res) => {
   try {
@@ -44,6 +45,14 @@ router.post("/register", validator, async (req, res) => {
 router.get("/getalgorithmbyid/:id", async (req,res)=>{
   let algo =await AlgorithmModel.findById(req.params.id);
   if(!algo) return res.status(404).send("Algorithm not found");
+  res.send(algo);
+});
+//Read all algorithms created by a instructor
+router.get("/getallalgorithmsbyinstructorid/:id",async (req,res)=>{
+  let allalgo = await AlgorithmModel.find({});
+  let algo= allalgo.filter(index=>{
+    return index.userSchema === req.params.id
+  });
   res.send(algo);
 });
 
@@ -155,7 +164,7 @@ router.delete("/deletemainnotes/:id", async (req, res) => {
   }
   res.send(mn);
 });
-
+//create feedback
 router.post("/createfeedback", async (req, res) => {
   const feed = new FeedbackModel(req.body);
   const feedAdded = await feed.save();
@@ -183,19 +192,53 @@ router.get("/getallfeedbacksbyalgorithmid/:id",async (req,res)=>{
   });
   res.send(feed);
 });
-// router.post("/createquiz", async (req, res) => {
-//   const quiz = new Quiz({
-//     question: [
-//       {
-//         text: req.body.text,
-//         choices: req.body.choices,
-//         anxIdx: req.body.anxIdx,
-//         why: req.body.why,
-//       },
-//     ],
-//   });
-//   const quizAdded = await quiz.save();
-//   res.status(200).json(quizAdded);
-// });
-
+//create quiz
+router.post("/createquiz", async (req, res) => {
+  const quiz = new QuizModel(req.body);
+  const quizadded = await quiz.save();
+  res.status(200).json(quizadded);
+});
+//update quiz
+router.put("/updatequiz/:id", async (req, res) => {
+  let quiz = await QuizModel.findOneAndUpdate(req.params.id, req.body, {
+    returnOriginal: false,
+  });
+  if (!quiz) return res.status(404).send("!quiz not found");
+  res.json(quiz);
+});
+//delete quiz
+router.delete("/deletequiz/:id", async (req, res) => {
+  let quiz = await QuizModel.findByIdAndRemove(req.params.id);
+  if (!quiz) {
+    return res.status(404).send(" quiz Not Found..");
+  }
+  res.send(quiz);
+});
+//read all quizes 
+router.get("/getallquizes",async (req,res)=>{
+  let quiz = await QuizModel.find({});
+  res.send(quiz);
+});
+//Read One quiz
+router.get("/getquizbyid/:id", async (req,res)=>{
+  let quiz =await QuizModel.findById(req.params.id);
+  if(!quiz) return res.status(404).send("quiz not found");
+  res.send(quiz);
+});
+//read quiz by instructor id
+router.get("/getallquizesbyinstructorid/:id",async (req,res)=>{
+  let allquizes = await QuizModel.find({});
+  let quiz= allquizes.filter(index=>{
+    return index.userSchema === req.params.id
+  });
+  res.send(quiz);
+});
+//read quizs by algorithm id
+router.get("/getallquizessbyalgorithmid/:id",async (req,res)=>{
+  let allquizes = await QuizModel.find({});
+  let quiz= allquizes.filter(index=>{
+    return index.algorithm === req.params.id
+  });
+  res.send(quiz);
+});
 module.exports = router;

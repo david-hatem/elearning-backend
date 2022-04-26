@@ -10,14 +10,10 @@ const quiz = new Schema({
       why: String,
     },
   ],
-  grade: {
-    type: Number,
-    default: 0,
+  algorithm: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Algorithm",
   },
-  // algorithm: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "Algorithm",
-  // },
 });
 
 module.exports = mongoose.model("Quiz", quiz);

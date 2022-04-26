@@ -18,6 +18,7 @@ const userSchema = new Schema(
         message: "{VALUE} not valid",
       },
     },
+    quizestaken: [{ type: mongoose.Schema.Types.ObjectId, ref: "Quiz" }],
     password: { type: String, required: true, minlength: 5 },
     role: { type: String, default: "instructor" },
   },
