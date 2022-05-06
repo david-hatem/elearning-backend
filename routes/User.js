@@ -12,6 +12,7 @@ const AlgorithmModel = require("../models/AlgorithmModel");
 const MainNotesModel = require("../models/MainNotesModel");
 const TopicsModel = require("../models/TopicsModel");
 const QuizModel = require("../models/QuizModel");
+const auth = require("../middlewares/AuthMWPermission");
 
 router.post("/register", validator, async (req, res) => {
   try {
@@ -42,35 +43,35 @@ router.post("/register", validator, async (req, res) => {
   }
 });
 //Read One Algorithm
-router.get("/getalgorithmbyid/:id", async (req,res)=>{
-  let algo =await AlgorithmModel.findById(req.params.id);
-  if(!algo) return res.status(404).send("Algorithm not found");
+router.get("/getalgorithmbyid/:id", async (req, res) => {
+  let algo = await AlgorithmModel.findById(req.params.id);
+  if (!algo) return res.status(404).send("Algorithm not found");
   res.send(algo);
 });
 //Read all algorithms created by a instructor
-router.get("/getallalgorithmsbyinstructorid/:id",async (req,res)=>{
+router.get("/getallalgorithmsbyinstructorid/:id", async (req, res) => {
   let allalgo = await AlgorithmModel.find({});
-  let algo= allalgo.filter(index=>{
-    return index.userSchema === req.params.id
+  let algo = allalgo.filter((index) => {
+    return index.userSchema === req.params.id;
   });
   res.send(algo);
 });
 
 //Read all algorithms
-router.get("/getallalgorithms",async (req,res)=>{
+router.get("/getallalgorithms", async (req, res) => {
   let algo = await AlgorithmModel.find({});
   res.send(algo);
 });
 
 // Create Algorithm
-router.post("/createalgorithm", async (req, res) => {
+router.post("/createalgorithm", auth, async (req, res) => {
   const alg = new AlgorithmModel(req.body);
   const algAdded = await alg.save();
   res.status(200).json(algAdded);
 });
 
 // Update Algorithm
-router.put("/updatealgorithm/:id", async (req, res) => {
+router.put("/updatealgorithm/:id", auth, async (req, res) => {
   let algo = await AlgorithmModel.findOneAndUpdate(req.params.id, req.body, {
     returnOriginal: false,
   });
@@ -79,7 +80,7 @@ router.put("/updatealgorithm/:id", async (req, res) => {
 });
 
 // Delete Algorithm
-router.delete("/deletealgorithm/:id", async (req, res) => {
+router.delete("/deletealgorithm/:id", auth, async (req, res) => {
   let alg = await AlgorithmModel.findByIdAndRemove(req.params.id);
   let mn = await MainNotesModel.deleteMany({ algorithm: req.params.id });
   let t = await TopicsModel.deleteMany({ algorithm: req.params.id });
@@ -90,9 +91,9 @@ router.delete("/deletealgorithm/:id", async (req, res) => {
 });
 
 //Read One Topic
-router.get("/gettopicbyid/:id", async (req,res)=>{
-  let topic =await TopicsModel.findById(req.params.id);
-  if(!topic) return res.status(404).send("topic not found");
+router.get("/gettopicbyid/:id", async (req, res) => {
+  let topic = await TopicsModel.findById(req.params.id);
+  if (!topic) return res.status(404).send("topic not found");
   res.send(topic);
 });
 // Create Topic
@@ -128,9 +129,9 @@ router.delete("/deletetopics/:id", async (req, res) => {
   res.send(topic);
 });
 //Read One note
-router.get("/getnotebyid/:id", async (req,res)=>{
-  let note =await TopicsModel.findById(req.params.id);
-  if(!note) return res.status(404).send("note not found");
+router.get("/getnotebyid/:id", async (req, res) => {
+  let note = await TopicsModel.findById(req.params.id);
+  if (!note) return res.status(404).send("note not found");
   res.send(note);
 });
 // Create Notes
@@ -172,23 +173,23 @@ router.post("/createfeedback", async (req, res) => {
 });
 
 //read all feedbacks
-router.get("/getallfeedbacks",async (req,res)=>{
+router.get("/getallfeedbacks", async (req, res) => {
   let feed = await FeedbackModel.find({});
   res.send(feed);
 });
 //read feedback by syudent id
-router.get("/getallfeedbacksbystudentid/:id",async (req,res)=>{
+router.get("/getallfeedbacksbystudentid/:id", async (req, res) => {
   let allfeed = await FeedbackModel.find({});
-  let feed= allfeed.filter(index=>{
-    return index.userSchema === req.params.id
+  let feed = allfeed.filter((index) => {
+    return index.userSchema === req.params.id;
   });
   res.send(feed);
 });
 //read feedback by algorithm id
-router.get("/getallfeedbacksbyalgorithmid/:id",async (req,res)=>{
+router.get("/getallfeedbacksbyalgorithmid/:id", async (req, res) => {
   let allfeed = await FeedbackModel.find({});
-  let feed= allfeed.filter(index=>{
-    return index.algorithm === req.params.id
+  let feed = allfeed.filter((index) => {
+    return index.algorithm === req.params.id;
   });
   res.send(feed);
 });
@@ -214,30 +215,30 @@ router.delete("/deletequiz/:id", async (req, res) => {
   }
   res.send(quiz);
 });
-//read all quizes 
-router.get("/getallquizes",async (req,res)=>{
+//read all quizes
+router.get("/getallquizes", async (req, res) => {
   let quiz = await QuizModel.find({});
   res.send(quiz);
 });
 //Read One quiz
-router.get("/getquizbyid/:id", async (req,res)=>{
-  let quiz =await QuizModel.findById(req.params.id);
-  if(!quiz) return res.status(404).send("quiz not found");
+router.get("/getquizbyid/:id", async (req, res) => {
+  let quiz = await QuizModel.findById(req.params.id);
+  if (!quiz) return res.status(404).send("quiz not found");
   res.send(quiz);
 });
 //read quiz by instructor id
-router.get("/getallquizesbyinstructorid/:id",async (req,res)=>{
+router.get("/getallquizesbyinstructorid/:id", async (req, res) => {
   let allquizes = await QuizModel.find({});
-  let quiz= allquizes.filter(index=>{
-    return index.userSchema === req.params.id
+  let quiz = allquizes.filter((index) => {
+    return index.userSchema === req.params.id;
   });
   res.send(quiz);
 });
 //read quizs by algorithm id
-router.get("/getallquizessbyalgorithmid/:id",async (req,res)=>{
+router.get("/getallquizessbyalgorithmid/:id", async (req, res) => {
   let allquizes = await QuizModel.find({});
-  let quiz= allquizes.filter(index=>{
-    return index.algorithm === req.params.id
+  let quiz = allquizes.filter((index) => {
+    return index.algorithm === req.params.id;
   });
   res.send(quiz);
 });

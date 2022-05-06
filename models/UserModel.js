@@ -20,13 +20,17 @@ const userSchema = new Schema(
     },
     quizestaken: [{ type: mongoose.Schema.Types.ObjectId, ref: "Quiz" }],
     password: { type: String, required: true, minlength: 5 },
-    role: { type: String, default: "instructor" },
+    // isIns: { type: Boolean },
   },
   { timestamps: true }
 );
 
 userSchema.method("genAuthToken", function () {
-  const token = jwt.sign({ usrid: this._id }, config.get("jwtsec"));
+  const token = jwt.sign(
+    // { usrid: this._id, insRole: this.isIns },
+    { usrid: this._id },
+    config.get("jwtsec")
+  );
   return token;
 });
 
