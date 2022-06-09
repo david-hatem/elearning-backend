@@ -13,6 +13,7 @@ const MainNotesModel = require("../models/MainNotesModel");
 const TopicsModel = require("../models/TopicsModel");
 const QuizModel = require("../models/QuizModel");
 const auth = require("../middlewares/AuthMWPermission");
+const Event = require("../models/Events");
 
 router.post("/register", validator, async (req, res) => {
   try {
@@ -242,4 +243,22 @@ router.get("/getallquizessbyalgorithmid/:id", async (req, res) => {
   });
   res.send(quiz);
 });
+
+router.post("/createevent", async (req, res) => {
+  const event = new Event(req.body);
+  const eventadded = await event.save();
+  res.status(200).json(eventadded);
+});
+
+router.get("/getevents", async (req, res) => {
+  let event = await Event.find({});
+  res.send(event);
+});
+
+router.get("/geteventbyid/:id", async (req, res) => {
+  let event = await Event.findById(req.params.id);
+  if (!event) return res.status(404).send("Event not found");
+  res.send(event);
+});
+
 module.exports = router;
