@@ -12,10 +12,11 @@ const AlgorithmModel = require("../models/AlgorithmModel");
 const MainNotesModel = require("../models/MainNotesModel");
 const TopicsModel = require("../models/TopicsModel");
 const QuizModel = require("../models/QuizModel");
-const auth = require("../middlewares/AuthMWPermission");
+// const auth = require("../middlewares/AuthMWPermission");
 const Event = require("../models/Events");
+const Analysis = require("../models/AnalysisModel");
 
-router.post("/register", validator, async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     let user = await User.findOne({ email: req.body.email }).exec();
     if (user) {
@@ -65,14 +66,14 @@ router.get("/getallalgorithms", async (req, res) => {
 });
 
 // Create Algorithm
-router.post("/createalgorithm", auth, async (req, res) => {
+router.post("/createalgorithm", async (req, res) => {
   const alg = new AlgorithmModel(req.body);
   const algAdded = await alg.save();
   res.status(200).json(algAdded);
 });
 
 // Update Algorithm
-router.put("/updatealgorithm/:id", auth, async (req, res) => {
+router.put("/updatealgorithm/:id", async (req, res) => {
   let algo = await AlgorithmModel.findOneAndUpdate(req.params.id, req.body, {
     returnOriginal: false,
   });
@@ -81,7 +82,7 @@ router.put("/updatealgorithm/:id", auth, async (req, res) => {
 });
 
 // Delete Algorithm
-router.delete("/deletealgorithm/:id", auth, async (req, res) => {
+router.delete("/deletealgorithm/:id", async (req, res) => {
   let alg = await AlgorithmModel.findByIdAndRemove(req.params.id);
   let mn = await MainNotesModel.deleteMany({ algorithm: req.params.id });
   let t = await TopicsModel.deleteMany({ algorithm: req.params.id });
@@ -198,6 +199,9 @@ router.get("/getallfeedbacksbyalgorithmid/:id", async (req, res) => {
 router.post("/createquiz", async (req, res) => {
   const quiz = new QuizModel(req.body);
   const quizadded = await quiz.save();
+  const algorithm = await AlgorithmModel.findById({ _id: quiz.algorithm });
+  algorithm.quizes.push(quizadded);
+  await algorithm.save();
   res.status(200).json(quizadded);
 });
 //update quiz
@@ -253,6 +257,17 @@ router.post("/createevent", async (req, res) => {
 router.get("/getevents", async (req, res) => {
   let event = await Event.find({});
   res.send(event);
+});
+
+router.post("/createanalysis", async (req, res) => {
+  const analysis = new Analysis(req.body);
+  const analysisadded = await analysis.save();
+  res.status(200).json(analysisadded);
+});
+
+router.get("/getanalysis", async (req, res) => {
+  let analysis = await Analysis.find({});
+  res.send(analysis);
 });
 
 router.get("/geteventbyid/:id", async (req, res) => {
